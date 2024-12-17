@@ -3,11 +3,15 @@
 #include <errno.h>
 #include <stdlib.h>
 
-typedef void *(*f)(size_t size);
+#ifndef CALLS
+    #define CALLS 0
+#endif
 
-void *malloc(size_t size)
+typedef void (f)(size_t size);
+
+void malloc(size_t size)
 {
-    static void *(*og_malloc)(size_t) = NULL;
+    static void(*og_malloc)(size_t) = NULL;
     static int calls = 0;
 
     if (!og_malloc)
@@ -15,7 +19,7 @@ void *malloc(size_t size)
         og_malloc = (f)dlsym(RTLD_NEXT, "malloc");
     }
     calls++;
-    if (calls <= 10)
+    if (calls <= CALLS)
     {
         return (og_malloc(size));
     }
@@ -23,6 +27,5 @@ void *malloc(size_t size)
     return (NULL);
 }
 
-
-//gcc -fPIC -shared -o "malloc.so" "malloc.c" -ldl
+//gcc -fPIC -shared -o "malloc.so" "malloc.c" -ldl -D CALLS=numb
 // LD_PRELOAD="./malloc.so" ./{program name}`
