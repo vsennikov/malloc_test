@@ -7,11 +7,11 @@
     #define CALLS 0
 #endif
 
-typedef void (f)(size_t size);
+typedef void *(*f)(size_t size);
 
-void malloc(size_t size)
+void *malloc(size_t size)
 {
-    static void(*og_malloc)(size_t) = NULL;
+    static void *(*og_malloc)(size_t) = NULL;
     static int calls = 0;
 
     if (!og_malloc)
